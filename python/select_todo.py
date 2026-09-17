@@ -55,6 +55,21 @@ async def select_image(seq : int):
         print('Error :',e)
         return{'result':'Error'}
 
+@router.get("/read_all_image_keys")
+async def read_all_image_keys():
+    conn = connect()
+    curs = conn.cursor()
+    curs.execute('SELECT seq FROM todo_image')
+    data = curs.fetchall()
+    conn.close()
+    result = [
+        {
+            'seq' : row[0]
+        }
+        for row in data
+    ]
+    return {'results' : result}
+
 @router.post("/upload_image")
 async def upload_image(
     file : UploadFile = File(...)
