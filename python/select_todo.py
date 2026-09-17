@@ -17,7 +17,14 @@ router = APIRouter()
 async def select_todo():
     conn = connect()
     curs = conn.cursor()
-    curs.execute('SELECT * FROM todo_list')
+    curs.execute(
+        '''
+        SELECT tl.seq, tl.title, tl.added_date, rti.image_key
+        FROM todo_list AS tl
+        LEFT JOIN relation_bet_todo_image AS rti ON tl.seq = rti.todo_key
+        ORDER BY tl.seq DESC
+        '''
+    )
     data = curs.fetchall()
     conn.close()
     result = [
@@ -25,21 +32,18 @@ async def select_todo():
             'seq' : row[0],
             'title' : row[1],
             'added_date' : row[2],
+            'image_key' : row[3],
         }
         for row in data
     ]
     return {'results' : result}
 
-@router.get("/select_image{seq}")
+@router.get("/select_image/{seq}")
 async def select_image(seq : int):
     try:
         conn = connect()
         curs = conn.cursor()
-        sql =   """
-                SELECT ti.image_data FROM relation_bet_todo_image as rti
-                INNER JOIN todo_image as ti ON rti.image_key = ti.seq
-                WHERE rti.todo_key = %s;
-                """
+        sql = "SELECT image_data FROM todo_image WHERE seq = %s"
         curs.execute(sql, (seq, ))
         row = curs.fetchone()
         conn.close()
@@ -54,6 +58,21 @@ async def select_image(seq : int):
     except Exception as e:
         print('Error :',e)
         return{'result':'Error'}
+
+@router.get("/read_all_image_keys")
+async def read_all_image_keys():
+    conn = connect()
+    curs = conn.cursor()
+    curs.execute('SELECT seq FROM todo_image')
+    data = curs.fetchall()
+    conn.close()
+    result = [
+        {
+            'seq' : row[0]
+        }
+        for row in data
+    ]
+    return {'results' : result}
 
 @router.post("/upload_image")
 async def upload_image(
