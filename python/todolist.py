@@ -11,4 +11,4 @@ app.include_router(select_router, prefix="/todo", tags=["todo"])
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("todolist:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("todolist:app", host='192.168.10.46', port=8000, reload=True)
