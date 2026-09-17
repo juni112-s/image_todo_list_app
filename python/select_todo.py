@@ -35,11 +35,7 @@ async def select_image(seq : int):
     try:
         conn = connect()
         curs = conn.cursor()
-        sql =   """
-                SELECT ti.image_data FROM relation_bet_todo_image as rti
-                INNER JOIN todo_image as ti ON rti.image_key = ti.seq
-                WHERE rti.todo_key = %s;
-                """
+        sql = "SELECT image_data FROM todo_image WHERE seq = %s"
         curs.execute(sql, (seq, ))
         row = curs.fetchone()
         conn.close()
