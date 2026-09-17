@@ -17,7 +17,14 @@ router = APIRouter()
 async def select_todo():
     conn = connect()
     curs = conn.cursor()
-    curs.execute('SELECT * FROM todo_list')
+    curs.execute(
+        '''
+        SELECT tl.seq, tl.title, tl.added_date, rti.image_key
+        FROM todo_list AS tl
+        LEFT JOIN relation_bet_todo_image AS rti ON tl.seq = rti.todo_key
+        ORDER BY tl.seq DESC
+        '''
+    )
     data = curs.fetchall()
     conn.close()
     result = [
@@ -25,6 +32,7 @@ async def select_todo():
             'seq' : row[0],
             'title' : row[1],
             'added_date' : row[2],
+            'image_key' : row[3],
         }
         for row in data
     ]

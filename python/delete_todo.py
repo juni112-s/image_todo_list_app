@@ -20,13 +20,22 @@ def connect_delete_todo():
 # DB = 삭제 기능
 @router.delete("/delete/{seq}")
 async def delete(seq:int):
+    conn = None
     try:
         conn = connect_delete_todo()
         curs = conn.cursor()
+        curs.execute(
+            "DELETE FROM relation_bet_todo_image WHERE todo_key = %s",
+            (seq, )
+        )
         curs.execute("DELETE FROM todo_list WHERE seq = %s", (seq))
         conn.commit()
-        conn.close()
         return {"result" : "OK"}
     except Exception as e:
+        if conn:
+            conn.rollback()
         print("Error", e)
         return{"result" : "Error"}
+    finally:
+        if conn:
+            conn.close()
