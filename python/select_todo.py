@@ -30,7 +30,7 @@ async def select_todo():
     ]
     return {'results' : result}
 
-@router.get("/select_image{seq}")
+@router.get("/select_image/{seq}")
 async def select_image(seq : int):
     try:
         conn = connect()
