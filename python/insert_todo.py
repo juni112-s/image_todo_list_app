@@ -16,7 +16,7 @@ def connect():
 async def insert_todo(
     title: str, 
     added_date: str,
-    image: UploadFile = File(...)
+    image: int,
     ):
     conn = connect()
     curs = conn.cursor()
@@ -30,21 +30,12 @@ async def insert_todo(
     curs.execute(sql, (title, added_date))
     todo_key = curs.lastrowid
 
-    # 이미지 추가
-    image_data = await image.read() 
-    sql = '''
-            INSERT INTO todo_image(image_data)
-            VALUES (%s)
-        '''
-    curs.execute(sql, (image_data,))
-    image_key = curs.lastrowid
-
     # Todo + 이미지
     sql = '''
             INSERT INTO relation_bet_todo_image(todo_key, image_key)
             VALUES (%s, %s)
         '''
-    curs.execute(sql, (todo_key, image_key))
+    curs.execute(sql, (todo_key, image))
 
     conn.commit()
 
